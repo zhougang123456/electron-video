@@ -3,17 +3,17 @@
     // Keep a global reference of the window object, if you don't, the window will
     // be closed automatically when the JavaScript object is garbage collected.
     let win
-  
+    process.env['ELECTRON_DISABLE_SECURITY_WARNINGS'] = 'true'
     function createWindow () {
       // 创建浏览器窗口。
-      win = new BrowserWindow({width: 800, height: 60})
+      win = new BrowserWindow({width: 1008, height: 728})
   
       // 然后加载应用的 index.html。
       win.loadFile('video.html')
   
       // 打开开发者工具
       win.webContents.openDevTools()
-
+      
       // 当 window 被关闭，这个事件会被触发。
       win.on('closed', () => {
         // 取消引用 window 对象，如果你的应用支持多窗口的话，

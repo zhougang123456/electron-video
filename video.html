@@ -8,32 +8,54 @@
     <script>
       var video = document.querySelector('video');
 
-      var assetURL = 'oceans.h264';//'frag_bunny.mp4';
+      //var assetURL = 'frag_bunny.mp4';
+      var assetURL = 'output.mp4';
+      //var assetURL = 'a.yuv';
       // Need to be specific for Blink regarding codecs
-      // ./mp4info frag_bunny.mp4 | grep Codec
-      var mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+      // ./mp4info frag_bunny.mp4 | grep Codec avc1.42E01E
+      //var mimeCodec = 'video/mp4; codecs="hev1.1.6.L93.B0"'; //hev1.1.6.L93.B0
+      var mimeCodec = 'video/mp4; codecs="avc1.42E01E"';
+      //var mimeCodec = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+      //var mimeCodec = 'video/x-raw; codecs="yuv420"';
 
       if ('MediaSource' in window && MediaSource.isTypeSupported(mimeCodec)) {
         var mediaSource = new MediaSource;
-        //console.log(mediaSource.readyState); // closed
+        console.log(mediaSource.readyState); // closed
         video.src = URL.createObjectURL(mediaSource);
         mediaSource.addEventListener('sourceopen', sourceOpen);
       } else {
-        console.error('Unsupported MIME type or codec: ', mimeCodec);
+         console.error('Unsupported MIME type or codec: ', mimeCodec);
       }
 
+    
+      var i = 0;
       function sourceOpen (_) {
         //console.log(this.readyState); // open
         var mediaSource = this;
         var sourceBuffer = mediaSource.addSourceBuffer(mimeCodec);
+     
         console.log("000");
         fetchAB(assetURL, function (buf) {
           sourceBuffer.addEventListener('updateend', function (_) {
-
-            console.log("111");
-            mediaSource.endOfStream();
             video.play();
-            //console.log(mediaSource.readyState); // ended
+            console.log("111");
+            if (i % 2 == 0) {
+              assetURL = 'b.yuv';
+            } else {
+              assetURL = 'a.yuv';
+            }
+            i++;
+            if (i == 1) {
+              assetURL = 'a.yuv';
+              mimeCodec = 'video/x-raw; codecs="yuv420"';
+              sourceBuffer.changeType(mimeCodec);
+            }
+            fetchAB(assetURL, function (buf) {
+              sourceBuffer.appendBuffer(buf);
+              console.log(buf);
+            });
+           
+            //mediaSource.endOfStream();
           });
           sourceBuffer.appendBuffer(buf);
           console.log(buf);
